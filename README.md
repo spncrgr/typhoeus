@@ -2,16 +2,6 @@
 
 Like a modern code version of the mythical beast with 100 serpent heads, Typhoeus runs HTTP requests in parallel while cleanly encapsulating handling logic.
 
-# Typhoeus needs your help!
-
-I don't have enough time, but I think this is a nice project! If you or your company is using Typhoeus you should help keeping it alive! Pick any of:
-
-* add docs
-* respond to issues
-* add features
-
-Or send me an email! I would be more than happy to help getting you up to speed!
-
 ## Example
 
 A single request:
@@ -317,38 +307,25 @@ Typhoeus.get("www.example.com").cached?
 For use with [Dalli](https://github.com/mperham/dalli):
 
 ```ruby
-class Cache
-  def initialize
-    @client = Dalli::Client.new
-  end
-
-  def get(request)
-    @client.get(request.cache_key)
-  end
-
-  def set(request, response)
-    @client.set(request.cache_key, response)
-  end
-end
-
-Typhoeus::Config.cache = Cache.new
+dalli = Dalli::Client.new(...)
+Typhoeus::Config.cache = Typhoeus::Cache::Dalli.new(dalli)
 ```
 
 For use with Rails:
 
 ```ruby
-class Cache
-  def get(request)
-    Rails.cache.read(request)
-  end
-
-  def set(request, response)
-    Rails.cache.write(request, response)
-  end
-end
-
-Typhoeus::Config.cache = Cache.new
+Typhoeus::Config.cache = Typhoeus::Cache::Rails.new
 ```
+
+For use with [Redis](https://github.com/redis/redis-rb):
+
+```ruby
+redis = Redis.new(...)
+Typhoeus::Config.cache = Typhoeus::Cache::Redis.new(redis)
+```
+
+All three of these adapters take an optional keyword argument `default_ttl`, which sets a default
+TTL on cached responses (in seconds), for requests which do not have a cache TTL set.
 
 ### Direct Stubbing
 
@@ -407,7 +384,7 @@ and [`connecttimeout`](http://curl.haxx.se/libcurl/c/curl_easy_setopt.html#CURLO
 `timeout` is the time limit for the entire request in seconds.
 `connecttimeout` is the time limit for just the connection phase, again in seconds.
 
-There are two additional more fine grained opptions `timeout_ms` and
+There are two additional more fine grained options `timeout_ms` and
 `connecttimeout_ms`. These options offer millisecond precision but are not always available (for instance on linux if `nosignal` is not set to true).
 
 When you pass a floating point `timeout` (or `connecttimeout`) Typhoeus will set `timeout_ms` for you if it has not been defined. The actual timeout values passed to curl will always be rounded up.
@@ -535,7 +512,7 @@ Copyright © 2009-2010 [Paul Dix](http://www.pauldix.net/)
 
 Copyright © 2011-2012 [David Balatero](https://github.com/dbalatero/)
 
-Copyright © 2012-2014 [Hans Hasselberg](http://github.com/i0rek/)
+Copyright © 2012-2016 [Hans Hasselberg](http://github.com/i0rek/)
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files (the "Software"),
@@ -554,6 +531,3 @@ THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR
 OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
-
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/typhoeus/typhoeus/trend.png)](https://bitdeli.com/free "Bitdeli Badge")

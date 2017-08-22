@@ -2,7 +2,27 @@
 
 ## Master
 
-[Full Changelog](http://github.com/typhoeus/typhoeus/compare/v1.0.1...master)
+[Full Changelog](http://github.com/typhoeus/typhoeus/compare/v1.1.2...master)
+
+## 1.1.2
+
+[Full Changelog](http://github.com/typhoeus/typhoeus/compare/v1.1.1...v1.1.2)
+
+## 1.1.1
+
+[Full Changelog](http://github.com/typhoeus/typhoeus/compare/v1.1.0...v1.1.1)
+
+## 1.1.0
+
+[Full Changelog](http://github.com/typhoeus/typhoeus/compare/v1.0.2...v1.1.0)
+
+* Unless specified `Expect` header is set to be empty to avoid `100 continue`
+  to be set when using `PUT`
+* Add global config option `Typhoeus::Config.proxy`
+
+## 1.0.2
+
+[Full Changelog](http://github.com/typhoeus/typhoeus/compare/v1.0.1...v1.0.2)
 
 ## 1.0.1
 

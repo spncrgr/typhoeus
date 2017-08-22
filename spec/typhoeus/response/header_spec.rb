@@ -55,7 +55,7 @@ describe Typhoeus::Response::Header do
         Server: gws
         X-XSS-Protection: 1; mode=block
         X-Frame-Options: SAMEORIGIN
-        Transfer-Encoding: chunked'
+        Transfer-Encoding: chunked'.gsub(/^\s{8}/, '')
       end
 
       it "sets raw" do
@@ -92,6 +92,56 @@ describe Typhoeus::Response::Header do
           expect(header[name.downcase]).to eq(value)
         end
       end
+
+      context 'includes a multi-line header' do
+        let(:raw) do
+          'HTTP/1.1 200 OK
+          Date: Fri, 29 Jun 2012 10:09:23 GMT
+          Content-Security-Policy: default-src "self";
+            img-src * data: "self";
+            upgrade-insecure-requests;'.gsub(/^\s{10}/, '')
+        end
+
+        it "joins header parts" do
+          expect(header).to eq({
+            'Date' => 'Fri, 29 Jun 2012 10:09:23 GMT',
+            'Content-Security-Policy' => 'default-src "self"; img-src * data: "self"; upgrade-insecure-requests;'
+          })
+        end
+      end
+
+      context 'includes line with only whitespace' do
+        let(:raw) do
+          'HTTP/1.1 200 OK
+          Date: Fri, 29 Jun 2012 10:09:23 GMT
+            
+          '.gsub(/^\s{10}/, '')
+        end
+
+        it 'ignores it' do
+          expect(header).to eq({ 'Date' => 'Fri, 29 Jun 2012 10:09:23 GMT' })
+        end
+      end
+
+      context 'with broken headers' do
+        let(:raw) do
+          'HTTP/1.1 200 OK
+          Date:
+          Content-Type
+          '.gsub(/^\s{10}/, '')
+        end
+
+        it 'returns empty string for invalid headers' do
+          expect(header.to_hash).to include({ 'Date' => '', 'Content-Type' => '' })
+        end
+      end
     end
+  end
+
+  it "can be Marshal'd" do
+    header = Typhoeus::Response::Header.new("Foo: Bar")
+    expect {
+      Marshal.dump(header)
+    }.not_to raise_error
   end
 end
